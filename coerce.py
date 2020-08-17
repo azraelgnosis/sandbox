@@ -14,18 +14,23 @@
 
 #     return v
 
-def _coerce_type(val, separator=","):
+def coerce_type(cls, val, separator=",", none=None):
     """
-    Coerces `val` as a list, float or int if applicable,
-        else returns original value.
+    Coerces `val` as a float or int if applicable,
+    if `val` is None, returns the value of `none`
+    else returns original value.
+
+    :param val: Value to coerce.
     """
 
-    if isinstance(val, str):
+    if val is None:
+        val = none
+    elif isinstance(val, str):
         if len(coll := val.split(separator)) > 1:
-            val = [_coerce_type(elem.strip()) for elem in coll]
+            val = [cls._coerce_type(elem.strip()) for elem in coll]
 
         try:
-            if "." in str(val):
+            if "." in str(val):                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     
                 val = float(val)
             else:
                 val = int(val)
