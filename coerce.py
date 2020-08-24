@@ -34,8 +34,8 @@ def coerce_type(cls, val, separator=",", none=None):
                 val = float(val)
             else:
                 val = int(val)
-        except TypeError: pass
-        except ValueError: pass
+        except (TypeError, ValueError):
+            pass
 
     return val
 

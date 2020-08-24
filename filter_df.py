@@ -8,8 +8,11 @@ from pandas.testing import assert_frame_equal
 df = pd.DataFrame(np.array([[1, 2, 3], [4, 5, 6], [7, None, 9]]),
                    columns=['a', 'b', 'c'])
 
+AGE = 'age'
+
 CLASS = 'class'
 THIRD = 'Third'
+
 EMBARK_TOWN = 'embark_town'
 SOUTHAMPTON = 'Southampton'
 
@@ -21,16 +24,25 @@ def is_iter(obj) -> bool:
 def filter_df(df:pd.DataFrame, filters:dict, exclude:bool=False, func:str='eq') -> pd.DataFrame:
     funcs = {
         'eq': pd.Series.eq,
-        'not eq': pd.Series.eq,
-        'isin': pd.Series.isin
+        'not eq': lambda series,val: ~pd.Series.eq(series, val),
+        'isin': pd.Series.isin,
+        '==': pd.Series.eq,
+        '>=': pd.Series.ge,
     }
 
     vert = op.inv if exclude or 'not ' in func else op.pos
     func = funcs.get(func, func)
 
     if isinstance(filters, dict):
-        for col, val in filters.items():
-            df = df[vert(func(df[col], val))]
+        for key, val in filters.items():
+            if key in funcs:
+                try:
+                    func = funcs.get(key)
+                    df = df[vert(func(df[val[0]], val[1]))]
+                except IndexError:
+                    pass
+            else:
+                df = df[vert(func(df[key], val))]
     elif is_iter(filters):
         if any(is_iter(elem) for elem in filters):
             dfs = [filter_df(df, elem) for elem in filters]
@@ -67,6 +79,25 @@ pd.testing.assert_frame_equal(
 pd.testing.assert_frame_equal(
     filter_df(df, filters=[{CLASS: THIRD}, {EMBARK_TOWN: SOUTHAMPTON}]),
     df[(df[CLASS] == THIRD) | (df[EMBARK_TOWN] == SOUTHAMPTON)]
+)
+
+age = 18
+# 'age' >= 18
+pd.testing.assert_frame_equal(
+    filter_df(df, filters={">=": (AGE, age)}),
+    df[df[AGE] >= age]
+)
+
+# 'age' >= 18 AND 'class' == 'Third
+pd.testing.assert_frame_equal(
+    filter_df(df, filters={'>=': (AGE, age), CLASS: THIRD}),
+    df[(df[AGE] >= age) & (df[CLASS] == THIRD)]
+)
+
+# 'age' >= 18 OR 'class' == 'Third'
+pd.testing.assert_frame_equal(
+    filter_df(df, filters=[{'>=': (AGE, age)}, {CLASS: THIRD}]),
+    df[(df[AGE] >= age) | (df[CLASS] == THIRD)]
 )
 
 print("done")
