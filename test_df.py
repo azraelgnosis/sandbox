@@ -34,20 +34,18 @@ def get_num_args(func) -> int:
     except TypeError:
         num = len(func.__text_signature__.split(",") - 2)
 
-def get(df:pd.DataFrame, column_name:str) -> pd.Series:
-    return df[column_name]
-
 def test_df(df, tests, data=None) -> bool:
-    conjunctions = {
-        'AND': all,
-        'OR': any
-    }
+    conjunctions = ('and', 'or')
     operations = {
-        "get": get,
+        'and': all,
+        'or': any,
+        "get": lambda df, column_name: df[column_name],
         "groupby": pd.DataFrame.groupby,
+        'count': pd.DataFrame.count,
+        'first': pd.core.groupby.GroupBy.first,
+        'sum': pd.Series.sum,
         "len": len,
         'unique': pd.Series.unique,
-        'sum': pd.Series.sum,
         '==': op.eq,  # pd.Series.eq
         'ge': op.ge,  # pd.Series.ge
         ">=": op.ge,  # pd.Series.ge
@@ -56,33 +54,27 @@ def test_df(df, tests, data=None) -> bool:
     if isinstance(data, bool):  # while not isinstance(data, bool):
         return data
 
-    if isinstance(tests, dict):
-        for key, val in tests.items():
-            if key in conjunctions:
-                func = conjunctions.get(key)
-                data = func([test_df(df, test) for test in val])
-                return data                
+    for key, val in tests.items():
+        func = operations.get(key.split()[0].lower())
+        if key.lower() in conjunctions:
+            data = [test_df(df, test) for test in val]
+            return func(data)
 
-            elif isinstance(val, dict):
-                data = test_df(df, val, data)
-                if (oper := key.split()[0]) in operations:
-                    func = operations.get(oper)
-                    try:
-                        data = func(data, coerce_type(key.split()[1]))
-                    except (KeyError, IndexError):
-                        try:
-                            data = func(data, val)
-                        except TypeError:
-                            data = func(data)                            
-                    except TypeError:
-                        data = func(data)
-            else:
-                if key in operations:
-                    func = operations.get(key)
-                    try:
-                        data = func(df, val)
-                    except TypeError:
-                        data = func(df)
+        elif isinstance(val, dict):
+            data = test_df(df, val, data)
+            try:
+                data = func(data, coerce_type(key.split()[1]))
+            except IndexError:
+                try:
+                    data = func(data, val)
+                except TypeError:
+                    data = func(data)                            
+
+        else:
+            try:
+                data = func(df, val)
+            except TypeError:
+                data = func(df)
     
     return data
 
@@ -96,7 +88,7 @@ tests = {
 assert test_df(df, tests) == True
 
 tests = {
-    "AND": [
+    "and": [
         {
             ">= 6": {
                 "len": {
@@ -116,7 +108,7 @@ tests = {
 assert test_df(df, tests) == True
 
 tests = {
-    "AND": [
+    "and": [
         {
             ">= 10": {
                 "len": {
@@ -136,7 +128,7 @@ tests = {
 assert test_df(df, tests) == False
 
 tests = {
-    "OR": [
+    "or": [
         {
             ">= 10": {
                 "len": {
