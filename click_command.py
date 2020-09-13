@@ -38,13 +38,34 @@ def close_db2():
 
 ###################################################################
 
-@click.command()
-@click.option('--count', default=1, help='number of greetings')
-@click.argument('name')
-def hello(count, name):
-    for x in range(count):
-        click.echo(f'Hello {name}!')
+# @click.command()
+# @click.option('--count', default=1, help='number of greetings')
+# @click.argument('name')
+# def hello(count, name):
+#     for x in range(count):
+#         click.echo(f'Hello {name}!')
 
-if __name__ == '__main__':
-    hello()
-    init_db()
+# if __name__ == '__main__':
+#     hello()
+#     init_db()
+
+###################################################################
+
+@click.command(name="yo")
+@click.argument('howdy')
+def sup(howdy):
+    click.echo("sup")
+
+class Alpha(object):
+    @staticmethod
+    @click.command()
+    def hi():
+        print("hi there")
+        click.echo(Alpha().bye())
+
+    # @classmethod
+    def bye(self):
+        print("goodbye")
+
+a = Alpha()
+a.hi()
