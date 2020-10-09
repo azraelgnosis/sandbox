@@ -57,15 +57,28 @@ def sup(howdy):
     click.echo("sup")
 
 class Alpha(object):
+    def __init__(self, message):
+        self.message = message
+
     @staticmethod
     @click.command()
     def hi():
         print("hi there")
-        click.echo(Alpha().bye())
+        click.echo(Alpha().greet())
 
-    # @classmethod
-    def bye(self):
+    @staticmethod
+    def bye():
         print("goodbye")
 
-a = Alpha()
-a.hi()
+    @click.command()
+    def greet(self):
+        click.echo(self.message)
+
+class Beta(Alpha):
+    def __init__(self, message):
+        self.message = message
+
+# a = Alpha()
+# a.hi()
+
+b = Beta("welcome")
