@@ -1,0 +1,56 @@
+{
+    "b": {
+        "type": "consonant",
+        "patterns": [
+            {
+                "context": [-1, 1],
+                "pattern": "[ei]+_|_[ei]+",
+                "patterns": [
+                    {
+                        "context": [-1, 1],
+                        "pattern": "_Vf",
+                        "value": "p"
+                    },
+                    {
+                        "context": ["start", "end"],
+                        "pattern": "_^",
+                        "value": "p"
+                    },
+                    {
+                        "context": [-1, 1],
+                        "pattern": "_Vb",
+                        "value": "pj"
+                    }
+                ]
+            }
+        ],
+        "slender": {
+            "_Vb": "pj",
+            "_Vf": "p",
+            "W_": "p"
+        }
+    },
+    "chd": {},
+    "e": {
+        "unstressed": "ə",
+        "stressed": "e"
+    },
+    "ea": {
+        "type": "vowel",
+        "unstressed": "ə",
+        "stressed": {
+            "else": "ɛ"
+        }
+    },
+    "eag": {},
+    "n": {
+        "type": "consonant",
+        "broad": {
+            "else": "n"
+        }
+    },
+    "s": {
+        "type": "consonant",
+        "(Vs)_(Vs)": {}
+    }
+}
