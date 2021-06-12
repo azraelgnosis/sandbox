@@ -1,4 +1,4 @@
-  def get(obj, path, null=False, sep="."):
+def get(obj, path, null=False, sep="."):
     """
     Retrieves attribute from `obj` following `sep`-separated `path`.
     :param obj: object (including dictionaries).
@@ -10,7 +10,7 @@
 
     if isinstance(path, dict):
         obj = {key: get(obj, val, null, sep) for key, val in path.items()}
-    elif isinstance(path, (str, unicode)):
+    elif isinstance(path, str):
         split_path = path.split(sep)
         try:
             for key in split_path:
